@@ -1,10 +1,10 @@
-import pandas as pd
-import numpy as np
-from scipy import stats
 import warnings
-from scipy.stats import ConstantInputWarning
+import numpy as np
+import pandas as pd
 import seaborn as sns
+from scipy import stats
 import matplotlib.pyplot as plt
+from scipy.stats import ConstantInputWarning
 
 # Calculo de cardinalidad
 def cardinalidad(target_col):
@@ -115,6 +115,7 @@ def get_features_num_regression(df, target_col, umbral_corr, pvalue=None):
       tipo (list): Lista con las columnas numéricas del dataframe cuya correlación con la columna "target_col" sea superior en valor absoluto al valor dado por "umbral_corr" y opcionalmente, con la prueba T-test.
    """
    list_res = []
+   # NOTE: target puede ser numerico discreto = chi cuadrado. Numerico continuo: ANOVA
    if check_args(df, target_col, umbral_corr, pvalue):
       df_numerico = df.select_dtypes(include=['number'])
       correlaciones = df_numerico.corr()[target_col]
@@ -126,8 +127,8 @@ def get_features_num_regression(df, target_col, umbral_corr, pvalue=None):
       else:
          for col in col_fil:
             sin_nulos = df[col].dropna()
-            t_stat, p_value = stats.ttest_1samp(sin_nulos, 30) # Test t de una muestra del dataframe limpia
-            print("p_value->",p_value)
+            # Test t de una muestra del dataframe limpio
+            t_stat, p_value = stats.ttest_1samp(sin_nulos, 30) 
             if 0.05 >= (1-p_value):
                list_res.append(col)
    else:
@@ -380,4 +381,7 @@ def plot_features_cat_regression(df, target_col="", columns=[], pvalue=0.05, wit
             plt.show()
     # Retornamos las columnas que han pasado el test de significancia
     return features if features else None
+
+
+# NOTE: correlacion de Pearson. Correlaciones con su significancia. Error estándar. Coeficientes con su significancia.
 
